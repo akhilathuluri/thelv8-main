@@ -174,6 +174,119 @@ export const emailService = {
       html,
     });
   },
+
+  /**
+   * Send OTP verification email
+   */
+  async sendOTPEmail(params: {
+    to: string;
+    otpCode: string;
+    purpose: 'signup' | 'password_reset' | 'login';
+    expiresInMinutes?: number;
+  }) {
+    const { to, otpCode, purpose, expiresInMinutes = 10 } = params;
+
+    const purposeText = {
+      signup: 'Sign Up Verification',
+      password_reset: 'Password Reset',
+      login: 'Login Verification',
+    }[purpose];
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Verification</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f9fafb;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+          
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #1f2937 0%, #111827 100%); padding: 40px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 300;">the<span style="font-weight: 600; font-style: italic;">lv8</span></h1>
+              <div style="margin-top: 20px; color: #ffffff; font-size: 24px; font-weight: 500;">${purposeText}</div>
+            </td>
+          </tr>
+
+          <!-- Content -->
+          <tr>
+            <td style="padding: 40px;">
+              <p style="margin: 0 0 24px; color: #1f2937; font-size: 16px; line-height: 1.6;">
+                Hello,
+              </p>
+              <p style="margin: 0 0 30px; color: #1f2937; font-size: 16px; line-height: 1.6;">
+                Use the verification code below to complete your ${purpose.replace('_', ' ')}:
+              </p>
+
+              <!-- OTP Code Box -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
+                <tr>
+                  <td align="center">
+                    <div style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); border-radius: 12px; padding: 24px; display: inline-block;">
+                      <p style="margin: 0 0 8px; color: #78350f; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Verification Code</p>
+                      <p style="margin: 0; color: #1f2937; font-size: 42px; font-weight: 700; letter-spacing: 8px; font-family: 'Courier New', monospace;">${otpCode}</p>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Expiration Warning -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px; margin: 30px 0;">
+                <tr>
+                  <td style="padding: 16px;">
+                    <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.6;">
+                      ⏰ This code will expire in <strong>${expiresInMinutes} minutes</strong>. Please use it soon.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Security Tips -->
+              <div style="background-color: #f9fafb; border-radius: 8px; padding: 20px; margin: 30px 0;">
+                <p style="margin: 0 0 12px; color: #1f2937; font-size: 14px; font-weight: 600;">Security Tips:</p>
+                <ul style="margin: 0; padding-left: 20px; color: #6b7280; font-size: 14px; line-height: 1.8;">
+                  <li>Never share this code with anyone</li>
+                  <li>Our team will never ask for your verification code</li>
+                  <li>If you didn't request this code, please ignore this email</li>
+                </ul>
+              </div>
+
+              <p style="margin: 30px 0 0; color: #6b7280; font-size: 14px; line-height: 1.6; text-align: center;">
+                Need help? Contact us at <a href="mailto:support@thelv8.com" style="color: #f59e0b; text-decoration: none;">support@thelv8.com</a>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+              <p style="margin: 0 0 10px; color: #6b7280; font-size: 14px;">This is an automated message from The LV8</p>
+              <p style="margin: 0; color: #9ca3af; font-size: 12px;">© 2025 The LV8. All rights reserved.</p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+    `;
+
+    const result = await this.sendEmail({
+      to,
+      subject: `${purposeText} - The LV8`,
+      html,
+    });
+
+    return result.success;
+  },
 };
 
 /**
